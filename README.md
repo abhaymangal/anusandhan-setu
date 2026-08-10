@@ -24,3 +24,7 @@ npm run preview
 ```
 
 The production output is generated in `dist/` and can be deployed directly on Vercel.
+
+## Product and pilot documents
+
+The controlling readiness checklist, legal working pack, discovery instruments, PRD and system architecture live in [`docs`](docs/00-READINESS-STATUS.md). Demonstration records in this app do not count as completed interviews, accepted buyer briefs or institution-cleared assets.

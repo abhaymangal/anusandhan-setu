@@ -2,10 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f5f1" />
-    <meta name="description" content="Anusandhan Setu — verified research to funded validation." />
-    <title>Anusandhan Setu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101318" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Anusandhan Setu — an evidence ledger connecting verified institutional research to funded industry validation."
+    />
+    <title>Anusandhan Setu · Evidence ledger for institutional research</title>
+    <script>
+      // Applied before first paint so the chosen theme never flashes.
+      try {
+        var stored = localStorage.getItem("setu-theme");
+        if (stored === "light" || stored === "dark") {
+          document.documentElement.dataset.theme = stored;
+        }
+      } catch (error) {
+        /* private browsing — fall back to the system scheme */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,18 +1,65 @@
 export type Screen = "discovery" | "asset" | "brief" | "match";
 export type Tone = "neutral" | "verified" | "warning" | "action" | "missing";
 export type RecordType = "brief" | "asset";
+export type Lane = "industrial" | "software";
+
+export interface Tag {
+  label: string;
+  tone: Tone;
+}
 
 export interface DiscoveryRecord {
   id: string;
   type: RecordType;
-  lane: "industrial" | "software";
+  lane: Lane;
   trl?: number;
   title: string;
   organisation: string;
   value: string;
   summary: string;
   reason: string;
-  signal: string;
+  signal: Tag;
+}
+
+export interface KeyValue {
+  term: string;
+  value: string;
+  emphasis?: boolean;
+}
+
+export interface EvidenceEntry {
+  title: string;
+  meta: string;
+  tag: Tag;
+}
+
+export interface AssetDetail {
+  id: string;
+  title: string;
+  standfirst: string;
+  tags: Tag[];
+  evidence: EvidenceEntry[];
+  gatedCount: number;
+  disclosure: { headline: string; body: string } | null;
+  rights: KeyValue[];
+  nextStep: { heading: string; body: string; price: string };
+  /** Set only where a funded brief is already paired. */
+  matchId: string | null;
+  needs: string[];
+  versions: string[];
+}
+
+export interface BriefDetail {
+  id: string;
+  title: string;
+  standfirst: string;
+  tags: Tag[];
+  metric: { label: string; value: string; note: string };
+  owner: { label: string; value: string; note: string };
+  terms: KeyValue[];
+  shortlist: { heading: string; body: string };
+  matchId: string | null;
+  fundable: string[];
 }
 
 export interface Requirement {
@@ -22,4 +69,13 @@ export interface Requirement {
   evidence: string;
   detail: string;
   resolution?: string;
+}
+
+export interface Milestone {
+  id: string;
+  title: string;
+  detail: string;
+  value: string;
+  state: string;
+  active?: boolean;
 }
