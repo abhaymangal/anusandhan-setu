@@ -1,4 +1,4 @@
-export type Screen = "discovery" | "asset" | "brief" | "match";
+export type Screen = "home" | "workspace" | "discovery" | "asset" | "brief" | "match" | "challenges";
 export type Tone = "neutral" | "verified" | "warning" | "action" | "missing";
 export type RecordType = "brief" | "asset";
 export type Lane = "industrial" | "software";

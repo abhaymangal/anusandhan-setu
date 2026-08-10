@@ -3,14 +3,31 @@ import { flushSync } from "react-dom";
 import {
   ArrowRight,
   ArrowUpRight,
+  Award,
   BadgeCheck,
+  Bell,
+  Bookmark,
+  Building2,
+  CalendarDays,
   ChevronDown,
   CircleAlert,
+  CircleHelp,
+  ClipboardCheck,
   CornerUpLeft,
+  FlaskConical,
+  Handshake,
+  LayoutDashboard,
   Lock,
   LockOpen,
+  MapPin,
+  MessageCircle,
+  Plus,
+  Sparkles,
   Search,
   ShieldCheck,
+  Target,
+  Trophy,
+  UserRound,
 } from "lucide-react";
 import { MotionConfig } from "motion/react";
 import {
@@ -32,8 +49,35 @@ import {
   STATUS_LABELS,
 } from "./data";
 import type { DiscoveryRecord, KeyValue, Requirement, Screen, Tone } from "./types";
+import { Workspace } from "./Workspace";
 
-const SCREENS: Screen[] = ["discovery", "asset", "brief", "match"];
+const SCREENS: Screen[] = ["home", "workspace", "discovery", "asset", "brief", "match", "challenges"];
+
+type Role = "researcher" | "company" | "office";
+
+const ROLE_COPY = {
+  researcher: {
+    label: "I have research",
+    title: "Researcher home",
+    body: "Show your work, add proof and find a real problem it may solve.",
+    action: "Add my research",
+    icon: FlaskConical,
+  },
+  company: {
+    label: "I have a problem",
+    title: "Company home",
+    body: "Describe a costly problem and find teams that may be able to help.",
+    action: "Post my problem",
+    icon: Building2,
+  },
+  office: {
+    label: "I manage approvals",
+    title: "College office home",
+    body: "Review ownership, sharing requests and agreements in one place.",
+    action: "Review waiting work",
+    icon: ClipboardCheck,
+  },
+} as const;
 
 const FILTERS = [
   { id: "software", label: "Software & AI" },
@@ -53,6 +97,164 @@ const STATUS_TONE: Record<Requirement["status"], Tone> = {
 };
 
 /* ==========================================================================
+   Personal home and healthy competition
+   ========================================================================== */
+
+function Home({ role, onRole, onNavigate }: {
+  role: Role;
+  onRole: (role: Role) => void;
+  onNavigate: (screen: Screen) => void;
+}) {
+  const copy = ROLE_COPY[role];
+  const nextSteps = role === "researcher"
+    ? [
+        ["Add one proof file", "Your bench report will move this work to 4 of 5 steps.", "Due today"],
+        ["Answer Vardhman’s question", "Can the sensor work without changing the machine?", "2 replies"],
+        ["Ask your college to check ownership", "This must be clear before a paid test can begin.", "Waiting"],
+      ]
+    : role === "company"
+      ? [
+          ["Finish your machine problem", "Add the monthly cost of unplanned stoppages.", "8 min"],
+          ["Review two possible teams", "Both teams can test without changing the machines.", "2 matches"],
+          ["Share six months of machine logs", "The first paid test cannot start without them.", "Waiting on you"],
+        ]
+      : [
+          ["Check one sharing request", "A company wants access to the sensor mounting drawing.", "Due today"],
+          ["Confirm who owns the work", "Four contributors have completed their statements.", "1 decision"],
+          ["Review the test agreement", "The first test can begin after your approval.", "3 weeks"],
+        ];
+
+  return (
+    <div className="page shell-width home-page">
+      <section className="welcome-card reveal">
+        <div>
+          <span className="hero__kicker"><Sparkles aria-hidden="true" /> Trust first · progress always</span>
+          <h1>Good research should find a real problem—and a fair next step.</h1>
+          <p>
+            Tell us why you are here. We will show what to do, what is already proven and what is
+            still needed. You can change this choice at any time.
+          </p>
+        </div>
+        <div className="role-picker" aria-label="Choose your role">
+          {(Object.keys(ROLE_COPY) as Role[]).map((id) => {
+            const item = ROLE_COPY[id];
+            const Icon = item.icon;
+            return (
+              <button key={id} className="role-card" data-active={role === id} onClick={() => onRole(id)}>
+                <Icon aria-hidden="true" />
+                <span><strong>{item.label}</strong><small>{item.body}</small></span>
+                <ArrowRight aria-hidden="true" />
+              </button>
+            );
+          })}
+          <button className="role-card role-card--explore" onClick={() => onNavigate("discovery")}>
+            <Search aria-hidden="true" />
+            <span><strong>I want to explore</strong><small>Look through open problems and research work.</small></span>
+            <ArrowRight aria-hidden="true" />
+          </button>
+        </div>
+      </section>
+
+      <section className="dashboard-head">
+        <div>
+          <span className="eyebrow">{copy.title}</span>
+          <h2>Welcome back, Asha</h2>
+          <p>One small action today can move your work closer to a real-world test.</p>
+        </div>
+        <Button variant="primary" onClick={() => onNavigate(role === "company" ? "brief" : role === "office" ? "asset" : "asset")}>
+          <Plus aria-hidden="true" /> {copy.action}
+        </Button>
+      </section>
+
+      <div className="home-grid">
+        <section className="progress-card reveal">
+          <div className="progress-card__top">
+            <div><span className="eyebrow">Your progress</span><h3>Research ready for matching</h3></div>
+            <strong>3 of 5</strong>
+          </div>
+          <div className="progress-track" aria-label="3 of 5 steps complete"><span style={{ width: "60%" }} /></div>
+          <ol className="step-list">
+            {["Research page started", "Proof added", "People named", "College approval", "Ready for matching"].map((step, i) => (
+              <li key={step} data-done={i < 3} data-current={i === 3}>
+                <span>{i < 3 ? "✓" : i + 1}</span><div><strong>{step}</strong>{i === 3 ? <small>Your next step</small> : null}</div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="next-actions reveal">
+          <div className="section-title"><div><span className="eyebrow">Do next</span><h3>Three clear actions</h3></div><Bell aria-hidden="true" /></div>
+          {nextSteps.map(([title, body, meta], i) => (
+            <button className="action-row" key={title} onClick={() => onNavigate(i === 1 ? "match" : "asset")}>
+              <span className="action-row__number">0{i + 1}</span>
+              <span><strong>{title}</strong><small>{body}</small></span>
+              <Pill tone={i === 0 ? "action" : i === 2 ? "warning" : "neutral"}>{meta}</Pill>
+              <ArrowRight aria-hidden="true" />
+            </button>
+          ))}
+        </section>
+      </div>
+
+      <section className="pulse-grid">
+        <button className="pulse-card" onClick={() => onNavigate("match")}>
+          <span className="pulse-icon"><Handshake /></span><span><small>New match</small><strong>Machine warning tool × funded factory problem</strong><em>Why: no machine changes needed</em></span><ArrowUpRight />
+        </button>
+        <button className="pulse-card" onClick={() => onNavigate("challenges")}>
+          <span className="pulse-icon"><Trophy /></span><span><small>Team challenge</small><strong>Reduce water use by 15%</strong><em>7 teams · same test · 26 days left</em></span><ArrowUpRight />
+        </button>
+        <div className="pulse-card pulse-card--impact">
+          <span className="pulse-icon"><Award /></span><span><small>Useful work recognised</small><strong>Open proof badge earned</strong><em>Your shared test plan helped two teams</em></span><BadgeCheck />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Challenges({ onOpenMatch }: { onOpenMatch: () => void }) {
+  const [joined, setJoined] = useState<string | null>(null);
+  const challenges = [
+    { id: "water", area: "Textiles · Surat", title: "Reduce fresh water use by 15% without lowering output", prize: "₹8,00,000", days: "26 days", teams: 7, status: "Open now" },
+    { id: "cold", area: "Food storage · Nashik", title: "Keep small cold rooms running through four-hour power cuts", prize: "₹5,50,000", days: "41 days", teams: 4, status: "Proof questions open" },
+    { id: "records", area: "Public records · Maharashtra", title: "Read handwritten land records with 97% field accuracy", prize: "₹9,00,000", days: "18 days", teams: 11, status: "Testing begins soon" },
+  ];
+  return (
+    <div className="page shell-width">
+      <PageIntro eyebrow="Team challenges" title="Compete on the problem. Share what everyone learns.">
+        Every team sees the same goal, uses the same test and receives clear feedback. There is no
+        global popularity list. Strong proof, helpful review and honest results earn recognition.
+      </PageIntro>
+      <div className="challenge-rule reveal">
+        <Target aria-hidden="true" /><div><strong>Fair by design</strong><p>Same problem · same test · same closing date · clear result</p></div>
+        <Pill tone="verified">Proof before rank</Pill>
+      </div>
+      <div className="challenge-grid">
+        {challenges.map((item, index) => (
+          <article className="challenge-card reveal" key={item.id}>
+            <div className="challenge-card__top"><Pill tone={index === 0 ? "verified" : "action"}>{item.status}</Pill><strong>{item.prize}</strong></div>
+            <span className="record-meta"><MapPin aria-hidden="true" /> {item.area}</span>
+            <h2>{item.title}</h2>
+            <div className="challenge-facts"><span><UserRound /> {item.teams} teams</span><span><CalendarDays /> {item.days}</span></div>
+            <div className="challenge-path" aria-label="Challenge steps"><span data-done="true">Problem</span><span data-done="true">Rules</span><span>Team plan</span><span>Shared test</span></div>
+            <div className="challenge-actions">
+              <Button variant="primary" onClick={() => setJoined(item.id)}>{joined === item.id ? "Joined · plan due next" : "Join this challenge"}</Button>
+              <Button onClick={onOpenMatch}>See how judging works</Button>
+            </div>
+          </article>
+        ))}
+      </div>
+      <section className="recognition-board reveal">
+        <div><span className="eyebrow">This month</span><h2>Useful work, fairly recognised</h2><p>These are different kinds of contribution—not one list of “best” people.</p></div>
+        {[
+          ["Most helpful review", "Team Jal Setu", "12 clear proof notes"],
+          ["Most useful shared data", "NIT Raipur Water Lab", "4 teams reused it"],
+          ["Best honest result", "ColdChain Collective", "A failed test saved 3 months"],
+        ].map(([label, team, note]) => <div className="recognition-row" key={label}><Award /><span><small>{label}</small><strong>{team}</strong></span><em>{note}</em></div>)}
+      </section>
+    </div>
+  );
+}
+
+/* ==========================================================================
    Discovery
    ========================================================================== */
 
@@ -64,6 +266,7 @@ interface DiscoveryProps {
 function Discovery({ onOpenRecord, searchRef }: DiscoveryProps) {
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<Set<FilterId>>(() => new Set());
+  const [saved, setSaved] = useState<Set<string>>(() => new Set());
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
 
   const records = useMemo(() => {
@@ -108,28 +311,27 @@ function Discovery({ onOpenRecord, searchRef }: DiscoveryProps) {
         <div className="hero__copy">
           <span className="hero__kicker">
             <ShieldCheck aria-hidden="true" />
-            Founding NIT exchange · director preview
+            Explore real needs and useful research
           </span>
           <h1>
-            Research should meet demand <em>before</em> it gathers dust
+            Find the right problem. See the proof. Take one <em>small next step.</em>
           </h1>
           <p>
-            One exchange where institutions present evidence, industry funds the next validation
-            step, and the state sees measurable outcomes. Every record states why it surfaced and
-            what remains unproven.
+            Companies share problems with funding. Research teams show what their work can do.
+            Every match explains what is proven, what is missing and what to test next.
           </p>
           <div className="stat-rail">
             <div className="stat">
               <strong>20</strong>
-              <span>Deeply verified assets</span>
+              <span>Research works checked</span>
             </div>
             <div className="stat">
               <strong>5</strong>
-              <span>Funded problem briefs</span>
+              <span>Problems with funding</span>
             </div>
             <div className="stat">
               <strong>90</strong>
-              <span>Day founding pilot</span>
+              <span>Day first programme</span>
             </div>
           </div>
         </div>
@@ -143,8 +345,8 @@ function Discovery({ onOpenRecord, searchRef }: DiscoveryProps) {
           <div className="exchange__foot">
             <BadgeCheck aria-hidden="true" />
             <span>
-              Coverage is published before money moves. Funding <b>M1</b> answers the one question
-              that decides the rest.
+              Everyone sees the proof before money moves. The first paid test answers the question
+              that decides what happens next.
             </span>
           </div>
         </div>
@@ -152,7 +354,7 @@ function Discovery({ onOpenRecord, searchRef }: DiscoveryProps) {
 
       <div className="search-panel" role="search">
         <label className="sr-only" htmlFor="research-search">
-          Search problems and research assets
+          Search problems and research work
         </label>
         <div className="search-field">
           <Search aria-hidden="true" />
@@ -162,7 +364,7 @@ function Discovery({ onOpenRecord, searchRef }: DiscoveryProps) {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Describe an operating problem, or search the exchange"
+            placeholder="Try: I need a low-cost way to find water leaks"
           />
           <kbd className="kbd">/</kbd>
         </div>
@@ -185,22 +387,25 @@ function Discovery({ onOpenRecord, searchRef }: DiscoveryProps) {
           <strong>{records.length}</strong> {records.length === 1 ? "record" : "records"}
           {fundedCount > 0 ? ` · ${fundedCount} funded` : ""}
         </span>
-        <span>Problem briefs and research assets share one evidence standard</span>
+        <span>Every result explains why it appeared</span>
       </div>
 
       <div className="result-grid">
         {records.map((record) => (
-          <button
+          <article
             className="result-card reveal"
             data-type={record.type}
             key={record.id}
+            role="link"
+            tabIndex={0}
             onClick={() => onOpenRecord(record)}
+            onKeyDown={(event) => { if (event.key === "Enter") onOpenRecord(record); }}
           >
             <div className="result-card__top">
               <div>
                 <div className="pill-row">
                   <Pill tone={record.type === "brief" ? "action" : "neutral"}>
-                    {record.type === "brief" ? "Funded problem" : "Research asset"}
+                    {record.type === "brief" ? "Problem with funding" : "Research work"}
                   </Pill>
                   <Pill tone={record.signal.tone}>{record.signal.label}</Pill>
                 </div>
@@ -213,10 +418,18 @@ function Discovery({ onOpenRecord, searchRef }: DiscoveryProps) {
             </p>
             <p className="record-summary">{record.summary}</p>
             <dl className="why-match">
-              <dt>Why it surfaced</dt>
+              <dt>Why this may help</dt>
               <dd>{record.reason}</dd>
             </dl>
-          </button>
+            <div className="card-actions" onClick={(event) => event.stopPropagation()}>
+              <span><CalendarDays /> {record.type === "brief" ? "3–14 weeks" : "Checked 8 Aug"}</span>
+              <span><MapPin /> {record.organisation.split("·").at(-1)}</span>
+              <button aria-label={`${saved.has(record.id) ? "Remove" : "Save"} ${record.title}`} onClick={() => setSaved((current) => {
+                const next = new Set(current); saved.has(record.id) ? next.delete(record.id) : next.add(record.id); return next;
+              })}><Bookmark fill={saved.has(record.id) ? "currentColor" : "none"} /> {saved.has(record.id) ? "Saved" : "Save"}</button>
+              <button onClick={() => onOpenRecord(record)}>See details <ArrowRight /></button>
+            </div>
+          </article>
         ))}
         {records.length === 0 ? (
           <div className="empty-state">
@@ -284,13 +497,13 @@ function ResearchAsset({ recordId, onBack, onOpenMatch }: DetailProps) {
             </div>
             {/* Neutral wording: some records on this screen are explicitly
                 unverified, and the label must not over-claim. */}
-            <span className="eyebrow">Research asset record</span>
+            <span className="eyebrow">Research work</span>
             <h1>{asset.title}</h1>
             <p>{asset.standfirst}</p>
           </div>
 
           <Panel
-            title="Evidence"
+            title="Proof and files"
             flush
             aside={
               <Pill>
@@ -335,7 +548,7 @@ function ResearchAsset({ recordId, onBack, onOpenMatch }: DetailProps) {
 
         <aside className="side-stack">
           <div className="side-card side-card--accent">
-            <span className="eyebrow">Next validation step</span>
+            <span className="eyebrow">Next paid test</span>
             <h2>{asset.nextStep.heading}</h2>
             <p>{asset.nextStep.body}</p>
             <strong className="price">{asset.nextStep.price}</strong>
@@ -350,7 +563,7 @@ function ResearchAsset({ recordId, onBack, onOpenMatch }: DetailProps) {
           </div>
 
           <div className="side-card">
-            <span className="eyebrow">Still needed</span>
+            <span className="eyebrow">Proof still needed</span>
             <ul>
               {asset.needs.map((need) => (
                 <li key={need}>{need}</li>
@@ -398,7 +611,7 @@ function ProblemBrief({ recordId, onBack, onOpenMatch }: DetailProps) {
                 </Pill>
               ))}
             </div>
-            <span className="eyebrow">Funded problem brief</span>
+            <span className="eyebrow">Problem with funding</span>
             <h1>{brief.title}</h1>
             <p>{brief.standfirst}</p>
           </div>
@@ -473,9 +686,9 @@ function MatchRoom() {
 
   return (
     <div className="page shell-width">
-      <PageIntro eyebrow="Evidence-led match room" title="RA-2026-0417 against PB-2026-0088">
-        No opaque composite score. Every requirement is connected to evidence, a named gap, and the
-        party responsible for the next move.
+      <PageIntro eyebrow="Compare the proof" title="Can this research solve this factory problem?">
+        We do not hide the answer inside one score. See what is proven, what is partly proven, what
+        is still missing and who needs to act next.
       </PageIntro>
 
       <div className="detail-grid">
@@ -483,11 +696,10 @@ function MatchRoom() {
           <div className="coverage reveal">
             <div className="coverage__top">
               <div>
-                <span className="eyebrow">Requirement coverage</span>
+                <span className="eyebrow">What this research can prove</span>
                 <h2>{summary}</h2>
                 <p className="coverage__count">
-                  {REQUIREMENTS.length} requirements drawn from the brief, each assessed against
-                  published evidence
+                  {REQUIREMENTS.length} needs from the company, each checked against shared proof
                 </p>
               </div>
               <Pill tone="warning">Proceed with validation</Pill>
@@ -513,7 +725,7 @@ function MatchRoom() {
             </div>
           </div>
 
-          <Panel title="Line-by-line evidence" flush aside={<Pill>Expand any requirement</Pill>}>
+          <Panel title="Check every need" flush aside={<Pill>Open any row</Pill>}>
             {REQUIREMENTS.map((item) => {
               const isOpen = openRequirement === item.id;
               return (
@@ -552,7 +764,7 @@ function MatchRoom() {
           </Panel>
 
           <Panel
-            title="Confidential materials"
+            title="Private files"
             aside={
               <Pill tone={ndaSigned ? "verified" : "action"}>
                 {ndaSigned ? "NDA countersigned" : "NDA not signed"}
@@ -585,7 +797,7 @@ function MatchRoom() {
             )}
           </Panel>
 
-          <Panel title="Milestones and escrow" flush aside={<Pill>₹6,00,000 committed</Pill>}>
+          <Panel title="Paid test steps" flush aside={<Pill>₹6,00,000 set aside</Pill>}>
             {MILESTONES.map((milestone) => (
               <div className="milestone" data-active={milestone.active} key={milestone.id}>
                 <span className="milestone__number">{milestone.id}</span>
@@ -719,8 +931,8 @@ function MatchRoom() {
 
         <aside className="side-stack">
           <div className="side-card side-card--accent">
-            <span className="eyebrow">Cheapest decisive next step</span>
-            <h2>Fund M1 only</h2>
+            <span className="eyebrow">Smallest useful next step</span>
+            <h2>Fund the first test only</h2>
             <p>
               Three weeks and ₹1,10,000 answers the question that decides everything else: does rig
               precision survive the production floor?
@@ -782,7 +994,7 @@ interface Location {
 
 function parseHash(): Location {
   const [rawScreen, rawId] = window.location.hash.replace(/^#/, "").split("/");
-  const screen = (SCREENS as string[]).includes(rawScreen) ? (rawScreen as Screen) : "discovery";
+  const screen = (SCREENS as string[]).includes(rawScreen) ? (rawScreen as Screen) : "home";
   return { screen, recordId: rawId ?? null };
 }
 
@@ -812,6 +1024,10 @@ export default function App() {
     initial.screen === "brief" && initial.recordId ? initial.recordId : "PB-2026-0088",
   );
   const [theme, setTheme] = useState<Theme>(readInitialTheme);
+  const [role, setRole] = useState<Role>(() => {
+    try { return (localStorage.getItem("setu-role") as Role) || "researcher"; } catch { return "researcher"; }
+  });
+  const [showGuide, setShowGuide] = useState(false);
   const searchRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -822,6 +1038,10 @@ export default function App() {
       /* private browsing — the choice simply will not persist */
     }
   }, [theme]);
+
+  useEffect(() => {
+    try { localStorage.setItem("setu-role", role); } catch { /* device choice only */ }
+  }, [role]);
 
   const applyLocation = useCallback((location: Location) => {
     setScreen(location.screen);
@@ -919,7 +1139,8 @@ export default function App() {
               </div>
             </div>
             <div className="header-tools">
-              <kbd className="kbd">1–4</kbd>
+              <button className="help-button" onClick={() => setShowGuide(true)}><CircleHelp /> How it works</button>
+              <kbd className="kbd">1–7</kbd>
               <ThemeToggle
                 theme={theme}
                 onToggle={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
@@ -930,6 +1151,8 @@ export default function App() {
         </header>
 
         <main id="main">
+          {screen === "home" ? <Home role={role} onRole={setRole} onNavigate={navigate} /> : null}
+          {screen === "workspace" ? <Workspace /> : null}
           {screen === "discovery" ? (
             <Discovery onOpenRecord={openRecord} searchRef={searchRef} />
           ) : null}
@@ -948,7 +1171,25 @@ export default function App() {
             />
           ) : null}
           {screen === "match" ? <MatchRoom /> : null}
+          {screen === "challenges" ? <Challenges onOpenMatch={() => navigate("match")} /> : null}
         </main>
+
+        {showGuide ? (
+          <div className="guide-backdrop" role="presentation" onMouseDown={() => setShowGuide(false)}>
+            <section className="guide-card" role="dialog" aria-modal="true" aria-labelledby="guide-title" onMouseDown={(event) => event.stopPropagation()}>
+              <button className="guide-close" onClick={() => setShowGuide(false)} aria-label="Close guide">×</button>
+              <span className="hero__kicker"><Sparkles /> 30-second guide</span>
+              <h2 id="guide-title">From a costly problem to one fair test</h2>
+              <div className="story-flow">
+                <div><span>1</span><strong>A factory shares a problem</strong><p>Its machines stop without warning, costing ₹20 lakh each year.</p></div>
+                <div><span>2</span><strong>A college shows its research</strong><p>The team has tested a warning tool in its lab and shares the proof.</p></div>
+                <div><span>3</span><strong>Both sides see what is missing</strong><p>The tool has not yet been tried on a working factory floor.</p></div>
+                <div><span>4</span><strong>They fund one small test</strong><p>Four machines, three weeks and one clear result decide what happens next.</p></div>
+              </div>
+              <Button variant="primary" full onClick={() => { setShowGuide(false); navigate("discovery"); }}>Explore possible work <ArrowRight /></Button>
+            </section>
+          </div>
+        ) : null}
 
         <footer className="app-footer">
           <div className="shell-width">

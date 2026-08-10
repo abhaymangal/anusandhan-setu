@@ -20,10 +20,24 @@ npm run dev
 
 ```bash
 npm run build
-npm run preview
+npm start
 ```
 
-The production output is generated in `dist/` and can be deployed directly on Vercel.
+The build is generated in `dist/`. The application service stores pilot records and protected
+files under `.setu-data/`, which is excluded from source control.
+
+## Protected workspace
+
+The pilot service includes email accounts, saved sessions, four roles, organisation confirmation,
+extra password checks for sensitive actions, protected file versions and access history,
+record-linked messages, version-bound approval decisions, ORCID sign-in and cached OpenAlex search.
+
+Copy `.env.example` to `.env` and provide OpenAlex and ORCID credentials to enable those live
+connections. The service works without them and explains which connection is awaiting setup.
+
+This local SQLite and filesystem setup is intended for a controlled pilot. Before a public launch,
+move the records and files to managed encrypted services, add real email delivery and malware
+scanning, and complete a security, privacy and institutional-policy review.
 
 ## Product and pilot documents
 

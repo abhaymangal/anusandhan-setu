@@ -4,10 +4,13 @@ import { Moon, Sun } from "lucide-react";
 import type { Screen, Tone } from "./types";
 
 export const SCREEN_LABELS: Array<{ id: Screen; label: string; short: string }> = [
-  { id: "discovery", label: "Discovery", short: "Discovery" },
-  { id: "asset", label: "Verified research asset", short: "Asset" },
-  { id: "brief", label: "Funded problem brief", short: "Brief" },
-  { id: "match", label: "Evidence-led match room", short: "Match" },
+  { id: "home", label: "My next steps", short: "Home" },
+  { id: "workspace", label: "My workspace", short: "Workspace" },
+  { id: "discovery", label: "Explore", short: "Explore" },
+  { id: "asset", label: "Research work", short: "Research" },
+  { id: "brief", label: "Problem with funding", short: "Problem" },
+  { id: "match", label: "Compare proof", short: "Match" },
+  { id: "challenges", label: "Team challenges", short: "Challenges" },
 ];
 
 /* --------------------------------------------------------------------------
