@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
   ArrowUpRight,
   Building2,
@@ -384,9 +384,23 @@ export default function App() {
     return ["discovery", "asset", "brief", "match"].includes(candidate) ? candidate : "discovery";
   });
 
+  useEffect(() => {
+    function syncScreenFromLocation() {
+      const candidate = window.location.hash.slice(1) as Screen;
+      setScreen(["discovery", "asset", "brief", "match"].includes(candidate) ? candidate : "discovery");
+    }
+
+    window.addEventListener("hashchange", syncScreenFromLocation);
+    window.addEventListener("popstate", syncScreenFromLocation);
+    return () => {
+      window.removeEventListener("hashchange", syncScreenFromLocation);
+      window.removeEventListener("popstate", syncScreenFromLocation);
+    };
+  }, []);
+
   function navigate(next: Screen) {
     setScreen(next);
-    window.history.replaceState(null, "", `#${next}`);
+    if (window.location.hash !== `#${next}`) window.history.pushState(null, "", `#${next}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
